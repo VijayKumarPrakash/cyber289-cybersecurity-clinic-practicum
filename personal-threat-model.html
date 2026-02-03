@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Threat Model</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600&family=Fraunces:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #FAFAF9;
+            --text: #1C1917;
+            --text-muted: #57534E;
+            --accent: #B45309;
+            --accent-light: #FEF3C7;
+            --border: #E7E5E4;
+            --card-bg: #FFFFFF;
+            --high: #DC2626;
+            --medium: #F59E0B;
+            --low: #10B981;
+            --very-low: #6B7280;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 3rem 1.5rem;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 4rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .course-tag {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--accent);
+            background: var(--accent-light);
+            padding: 0.4rem 1rem;
+            border-radius: 100px;
+            margin-bottom: 1.5rem;
+        }
+
+        h1 {
+            font-family: 'Fraunces', serif;
+            font-size: 2.75rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 0.75rem;
+            letter-spacing: -0.02em;
+        }
+
+        .author {
+            font-size: 1rem;
+            color: var(--text-muted);
+        }
+
+        section {
+            margin-bottom: 3rem;
+        }
+
+        h2 {
+            font-family: 'Fraunces', serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        h2::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 1.25rem;
+            background: var(--accent);
+            border-radius: 2px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .perspective-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        @media (max-width: 600px) {
+            .perspective-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .perspective-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .perspective-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .perspective-text {
+            font-size: 0.95rem;
+            color: var(--text);
+        }
+
+        .protect-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .protect-item {
+            background: var(--accent-light);
+            color: var(--accent);
+            font-size: 0.85rem;
+            font-weight: 500;
+            padding: 0.4rem 1rem;
+            border-radius: 100px;
+        }
+
+        .note {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        .adversary {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border);
+            gap: 1rem;
+        }
+
+        .adversary:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .adversary:first-child {
+            padding-top: 0;
+        }
+
+        .adversary-info {
+            flex: 1;
+        }
+
+        .adversary-name {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .adversary-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .risk-badge {
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            padding: 0.3rem 0.75rem;
+            border-radius: 100px;
+            white-space: nowrap;
+        }
+
+        .risk-high {
+            background: #FEE2E2;
+            color: var(--high);
+        }
+
+        .risk-medium {
+            background: #FEF3C7;
+            color: #B45309;
+        }
+
+        .risk-low {
+            background: #D1FAE5;
+            color: #047857;
+        }
+
+        .risk-very-low {
+            background: #F3F4F6;
+            color: var(--very-low);
+        }
+
+        .surface-item {
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .surface-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .surface-item:first-child {
+            padding-top: 0;
+        }
+
+        .surface-title {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .surface-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .protection-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .protection-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .protection-item:first-child {
+            padding-top: 0;
+        }
+
+        .protection-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .protection-icon.good {
+            background: #D1FAE5;
+        }
+
+        .protection-icon.gap {
+            background: #FEE2E2;
+        }
+
+        .protection-content {
+            flex: 1;
+        }
+
+        .protection-title {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .protection-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .context-item {
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .context-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .context-item:first-child {
+            padding-top: 0;
+        }
+
+        .consequence-grid {
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        .consequence-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            font-size: 0.95rem;
+        }
+
+        .consequence-bullet {
+            width: 6px;
+            height: 6px;
+            background: var(--accent);
+            border-radius: 50%;
+            margin-top: 0.5rem;
+            flex-shrink: 0;
+        }
+
+        .comparative-text {
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        .comparative-text p {
+            margin-bottom: 1rem;
+        }
+
+        .comparative-text p:last-child {
+            margin-bottom: 0;
+        }
+
+        .highlight {
+            background: var(--accent-light);
+            padding: 0.1rem 0.3rem;
+            border-radius: 4px;
+        }
+
+        footer {
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="course-tag">Cyber 289: Public Interest Cybersecurity</div>
+            <h1>Personal Threat Model</h1>
+            <p class="author">Vijay Kumar Prakash</p>
+        </header>
+
+        <section>
+            <h2>Who Am I?</h2>
+            <div class="perspective-grid">
+                <div class="perspective-card">
+                    <div class="perspective-label">From My Perspective</div>
+                    <p class="perspective-text">A handsome, friendly guy trying to finish his capstone project, land a job, and maybe win a chess game for once.</p>
+                </div>
+                <div class="perspective-card">
+                    <div class="perspective-label">From an Attacker's Perspective</div>
+                    <p class="perspective-text">Scrawny, brown Berkeley kid (so probably smart) who presumably carries decent electronics. Unlikely to involve police, not physically intimidating, limited local support network. Either a soft target or not worth the effort.</p>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>What I Want to Protect</h2>
+            <div class="card">
+                <div class="protect-list">
+                    <span class="protect-item">Safety</span>
+                    <span class="protect-item">Autonomy</span>
+                    <span class="protect-item">Reputation</span>
+                    <span class="protect-item">Livelihood</span>
+                    <span class="protect-item">Relationships</span>
+                </div>
+                <p class="note">If people could rob your debt, I'd be happy to have someone steal from my account. But right now, what's important to me is maintaining the reputation I worked hard to build.</p>
+            </div>
+        </section>
+
+        <section>
+            <h2>My Adversaries</h2>
+            <div class="card">
+                <div class="adversary">
+                    <div class="adversary-info">
+                        <div class="adversary-name">Phone Scammer</div>
+                        <div class="adversary-desc">The Chinese lady who harasses me every week, saying I have important documents to pick up. Relentless, calls from a different number every time.</div>
+                    </div>
+                    <span class="risk-badge risk-high">High</span>
+                </div>
+                <div class="adversary">
+                    <div class="adversary-info">
+                        <div class="adversary-name">Credit Card Companies</div>
+                        <div class="adversary-desc">Capital One and the dozen other companies that know I was recently looking for credit.</div>
+                    </div>
+                    <span class="risk-badge risk-medium">Medium</span>
+                </div>
+                <div class="adversary">
+                    <div class="adversary-info">
+                        <div class="adversary-name">Street Criminals</div>
+                        <div class="adversary-desc">The people over by Blake and Ellsworth who jumped my friend, and probably think Berkeley students carry expensive equipment.</div>
+                    </div>
+                    <span class="risk-badge risk-low">Low</span>
+                </div>
+                <div class="adversary">
+                    <div class="adversary-info">
+                        <div class="adversary-name">RSF Wallet Thief</div>
+                        <div class="adversary-desc">A repeat offender who stole my friend's wallet while we were playing badminton.</div>
+                    </div>
+                    <span class="risk-badge risk-low">Low</span>
+                </div>
+                <div class="adversary">
+                    <div class="adversary-info">
+                        <div class="adversary-name">Extremists</div>
+                        <div class="adversary-desc">Those who may believe I do not belong in this country.</div>
+                    </div>
+                    <span class="risk-badge risk-very-low">Very Low</span>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>My Attack Surfaces</h2>
+            <div class="card">
+                <div class="surface-item">
+                    <div class="surface-title">Predictable Password Pattern</div>
+                    <div class="surface-desc">I use different passwords but follow a formula—if you know two or three, you can deduce the rest.</div>
+                </div>
+                <div class="surface-item">
+                    <div class="surface-title">Risky Commute Routes</div>
+                    <div class="surface-desc">I sometimes walk home late through "shady routes" that locals avoid.</div>
+                </div>
+                <div class="surface-item">
+                    <div class="surface-title">Unattended Devices</div>
+                    <div class="surface-desc">Phone and laptop often left unlocked when grabbing a bite or using the restroom in public places.</div>
+                </div>
+                <div class="surface-item">
+                    <div class="surface-title">Apple Ecosystem Leakage</div>
+                    <div class="surface-desc">Students in my discussion sections see personal notifications and caller IDs (with funny nicknames) synced to my laptop.</div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>Current Protections & Gaps</h2>
+            <div class="card">
+                <div class="protection-item">
+                    <div class="protection-icon good">🔒</div>
+                    <div class="protection-content">
+                        <div class="protection-title">Three Locks on Door</div>
+                        <div class="protection-desc">House has a door and mesh/gate with three locks. Sadly, all three use the same key, and big glass windows make them somewhat moot.</div>
+                    </div>
+                </div>
+                <div class="protection-item">
+                    <div class="protection-icon good">🚪</div>
+                    <div class="protection-content">
+                        <div class="protection-title">Exit Awareness</div>
+                        <div class="protection-desc">I constantly note the nearest exits in new places, in case I need to make an emergency escape.</div>
+                    </div>
+                </div>
+                <div class="protection-item">
+                    <div class="protection-icon gap">🚲</div>
+                    <div class="protection-content">
+                        <div class="protection-title">Bike (Currently a Gap)</div>
+                        <div class="protection-desc">Biking could alleviate late-night commute risks, but my bike has a flat wheel and is collecting dust.</div>
+                    </div>
+                </div>
+                <div class="protection-item">
+                    <div class="protection-icon gap">📧</div>
+                    <div class="protection-content">
+                        <div class="protection-title">Public Contact Info</div>
+                        <div class="protection-desc">My contact information is on my resume, which is available on my LinkedIn profile.</div>
+                    </div>
+                </div>
+                <div class="protection-item">
+                    <div class="protection-icon good">✂️</div>
+                    <div class="protection-content">
+                        <div class="protection-title">Mail Shredding</div>
+                        <div class="protection-desc">I cut up the section of mail with my name and address before tossing it, to keep my address out of wrong hands.</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>Contextual Factors</h2>
+            <div class="card">
+                <div class="context-item">
+                    <p>Since I am an <span class="highlight">international student</span> and don't want trouble with immigration or law enforcement, I am less likely to report incidents—I don't want my name on police reports, even as the complainant. In my first week at Berkeley, I lost my Clipper card. I could have replaced it for free with a police report, but I paid the $25 fine instead.</p>
+                </div>
+                <div class="context-item">
+                    <p>For the longest time, I never had a phone screen lock, but I recently started using one.</p>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>Consequences of Failure</h2>
+            <div class="card">
+                <div class="consequence-grid">
+                    <div class="consequence-item">
+                        <div class="consequence-bullet"></div>
+                        <p>I lose some money, but not a whole lot</p>
+                    </div>
+                    <div class="consequence-item">
+                        <div class="consequence-bullet"></div>
+                        <p>A bad credit score that follows me for life if someone opens a fraudulent account</p>
+                    </div>
+                    <div class="consequence-item">
+                        <div class="consequence-bullet"></div>
+                        <p>Shame, embarrassment, or psychological repercussions if my physical safety is harmed</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>Comparative Perspective</h2>
+            <div class="card">
+                <div class="comparative-text">
+                    <p>I understand that different people with different backgrounds and experiences have distinct threat models.</p>
+                    <p>For instance, a <span class="highlight">female classmate</span> walking the same route at night faces a different threat calculus than I do. An <span class="highlight">undocumented student</span> might avoid filing that police report not out of preference, but necessity.</p>
+                    <p>My threat model is shaped by being a student with legal status and relatively low-value assets, but others navigating the same campus have meaningfully different concerns.</p>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            Cyber 289: Public Interest Cybersecurity &middot; UC Berkeley
+        </footer>
+    </div>
+</body>
+</html>
